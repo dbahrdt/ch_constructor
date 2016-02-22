@@ -5,6 +5,15 @@
 namespace chc {
 	// "default" text serialization of some nodes and edge types,
 	// used in the the formats below
+	
+namespace md {
+	struct HashKeyValueMD {};
+}
+	
+	template<typename MetaDataFormatT>
+	void text_readMetaData(std::istream& is, Metadata & meta_data, MetaDataFormatT = MetaDataFormatT());
+	template<> void text_readMetaData<md::HashKeyValueMD>(std::istream& is, Metadata & meta_data, md::HashKeyValueMD mdf);
+	
 	template<typename NodeT>
 	void text_writeNode(std::ostream& os, NodeT const& node);
 	template<> void text_writeNode<OSMNode>(std::ostream& os, OSMNode const& node);

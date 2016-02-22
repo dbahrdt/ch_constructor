@@ -207,6 +207,32 @@ namespace chc {
 			edge.dist = (edge.dist * 1.3) / (((edge.speed > 130) ? 130.0 : (double) edge.speed)/100.0);
 		}
 	}
+	
+	template<> void text_readMetaData<md::HashKeyValueMD>(std::istream& is, Metadata & meta_data, md::HashKeyValueMD mdf) {
+		std::string line;
+		std::getline(is, line);
+		while (line != "") {
+			std::stringstream ss(line);
+			std::string hash;
+			std::string key;
+			std::string map;
+			std::string colon;
+			ss >> hash >> key >> colon >> map;
+
+			if (hash != "#") {
+				std::cout << "Error while parsing meta data: expected '#' instead of '"
+					<< hash << "'\n";
+			}
+			if (colon != ":") {
+				std::cout << "Error while parsing meta data: expected ':' instead of '"
+					<< colon << "'\n";
+			}
+
+			meta_data[key] = map;
+
+			std::getline(is, line);
+		}
+	}
 
 	template<>
 	void text_writeNode<OSMNode>(std::ostream& os, OSMNode const& node)
@@ -470,29 +496,7 @@ namespace chc {
 		void Reader_impl::readHeader(NodeID& estimated_nr_nodes, EdgeID& estimated_nr_edges,
 				Metadata& meta_data)
 		{
-			std::string line;
-			std::getline(is, line);
-			while (line != "") {
-				std::stringstream ss(line);
-				std::string hash;
-				std::string key;
-				std::string map;
-				std::string colon;
-				ss >> hash >> key >> colon >> map;
-
-				if (hash != "#") {
-					std::cout << "Error while parsing meta data: expected '#' instead of '"
-						<< hash << "'\n";
-				}
-				if (colon != ":") {
-					std::cout << "Error while parsing meta data: expected ':' instead of '"
-						<< colon << "'\n";
-				}
-
-				meta_data[key] = map;
-
-				std::getline(is, line);
-			}
+			text_readMetaData<md::HashKeyValueMD>(is, meta_data);
 
 			is >> estimated_nr_nodes >> estimated_nr_edges;
 		}
