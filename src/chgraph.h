@@ -2,12 +2,27 @@
 
 #include "graph.h"
 #include "nodes_and_edges.h"
+#include "function_traits.h"
 
 #include <vector>
 #include <algorithm>
 
 namespace chc
 {
+
+namespace detail {
+	template<typename NodeT, typename EdgeT>
+	struct NodeLevel {
+		static constexpr bool has_level_info = false;
+		uint operator()(const NodeT & n) { return c::NO_LVL; }
+	};
+	
+	template<typename NodeBaseT, typename EdgeT>
+	struct NodeLevel<CHNode<NodeBaseT>, EdgeT> {
+		static constexpr bool has_level_info = true;
+		uint operator()(const CHNode<NodeBaseT> & n) { return n.lvl; }
+	};
+}
 
 template <typename NodeT, typename EdgeT>
 class CHGraph : public Graph<NodeT, CHEdge<EdgeT> >
@@ -31,12 +46,17 @@ class CHGraph : public Graph<NodeT, CHEdge<EdgeT> >
 				std::vector<Shortcut>& new_edge_vec);
 	public:
 		template <typename Data>
-		void init(Data&& data)
+		void init(Data && data)
 		{
-			_node_levels.resize(data.nodes.size(), c::NO_LVL);
 			BaseGraph::init(std::forward<Data>(data));
+			_node_levels.resize(BaseGraph::getNrOfNodes(), c::NO_LVL);
+			if (detail::NodeLevel<NodeT, Shortcut>::has_level_info) {
+				detail::NodeLevel<NodeT, Shortcut> nl;
+				for(uint32_t i(0), s(BaseGraph::getNrOfNodes()); i < s; ++i) {
+					_node_levels[i] = nl( BaseGraph::getNode(i) );
+				}
+			}
 		}
-
 
 		void restructure(std::vector<NodeID> const& removed,
 				std::vector<bool> const& to_remove,
