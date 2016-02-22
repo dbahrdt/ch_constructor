@@ -35,4 +35,11 @@ namespace chc {
 
 	template<typename _From, typename _To>
 	using is_static_castable_t = typename is_static_castable<_From, _To>::type;
+	
+
+	template < template <typename...> class Template, typename T >
+	struct is_specialization_of : std::false_type {};
+
+	template < template <typename...> class Template, typename... Args >
+	struct is_specialization_of< Template, Template<Args...> > : std::true_type {};
 }
