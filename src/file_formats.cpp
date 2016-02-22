@@ -247,6 +247,20 @@ namespace chc {
 		os << node.id << " " << node.osm_id << " " << node.lat << " "
 			<< node.lon << " " << node.elev << " " << node.lvl << "\n";
 	}
+	
+	template<>
+	CHNode<OSMNode> text_readNode<CHNode<OSMNode>>(std::istream& is, NodeID node_id) {
+		return readLine(is, [node_id](std::istream& is) {
+			CHNode<OSMNode> node;
+			is >> node.id >> node.osm_id >> node.lat >> node.lon >> node.elev >> node.lvl;
+			if (node_id != c::NO_NID && node.id != node_id) {
+				std::cerr << "FATAL_ERROR: Invalid node id " << node.id << " at index " << node_id << ". Exiting\n";
+				text_writeNode(std::cerr, node);
+				std::abort();
+			}
+			return node;
+		});
+	}
 
 	template<>
 	void text_writeNode<CHNode<StefanNode>>(std::ostream& os, CHNode<StefanNode> const& node)
@@ -390,6 +404,35 @@ namespace chc {
 			<< (edge.child_edge1 == c::NO_EID ? "-1" : std::to_string(edge.child_edge1)) << " "
 			<< (edge.child_edge2 == c::NO_EID ? "-1" : std::to_string(edge.child_edge2)) << "\n";
 	}
+	
+	template<>
+	CHEdge<OSMEdge> text_readEdge<CHEdge<OSMEdge>>(std::istream& is, EdgeID edge_id) {
+		return readLine(is, [edge_id](std::istream& is) {
+			CHEdge<OSMEdge> edge;
+			long int child_edge1, child_edge2;
+			
+			edge.id = edge_id;
+			
+			is >> edge.src >> edge.tgt >> edge.dist
+				>> edge.type >> edge.speed
+				>> child_edge1 >> child_edge2;
+			
+			if (child_edge1 < 0) {
+				edge.child_edge1 = c::NO_EID;
+			}
+			else {
+				edge.child_edge1 = child_edge1;
+			}
+			
+			if (child_edge2 < 0) {
+				edge.child_edge2 = c::NO_EID;
+			}
+			else {
+				edge.child_edge2 = child_edge2;
+			}
+			return edge;
+		});
+	}
 
 	template<>
 	void text_writeEdge<CHEdge<EuclOSMEdge>>(std::ostream& os, CHEdge<EuclOSMEdge> const& edge)
@@ -398,6 +441,36 @@ namespace chc {
 			<< edge.type << " " << edge.eucl_dist << " "
 			<< (edge.child_edge1 == c::NO_EID ? "-1" : std::to_string(edge.child_edge1)) << " "
 			<< (edge.child_edge2 == c::NO_EID ? "-1" : std::to_string(edge.child_edge2)) << "\n";
+	}
+	
+
+	template<>
+	CHEdge<EuclOSMEdge> text_readEdge<CHEdge<EuclOSMEdge>>(std::istream& is, EdgeID edge_id) {
+		return readLine(is, [edge_id](std::istream& is) {
+			CHEdge<EuclOSMEdge> edge;
+			long int child_edge1, child_edge2;
+			
+			edge.id = edge_id;
+			
+			is >> edge.src >> edge.tgt >> edge.dist
+				>> edge.type >> edge.eucl_dist
+				>> child_edge1 >> child_edge2;
+			
+			if (child_edge1 < 0) {
+				edge.child_edge1 = c::NO_EID;
+			}
+			else {
+				edge.child_edge1 = child_edge1;
+			}
+			
+			if (child_edge2 < 0) {
+				edge.child_edge2 = c::NO_EID;
+			}
+			else {
+				edge.child_edge2 = child_edge2;
+			}
+			return edge;
+		});
 	}
 
 	template<>
@@ -538,6 +611,17 @@ namespace chc {
 	}
 
 	namespace FormatFMI_CH {
+
+		auto Reader_impl::readNode(NodeID node_id) -> node_type
+		{
+			return text_readNode<node_type>(is, node_id);
+		}
+
+		auto Reader_impl::readEdge(EdgeID edge_id) -> edge_type
+		{
+			return text_readEdge<edge_type>(is, edge_id);
+		}
+
 		Writer_impl::Writer_impl(std::ostream& os) : FormatSTD::Writer_impl(os) {
 			os.precision(7);
 			os << std::fixed;
@@ -571,6 +655,12 @@ namespace chc {
 	}
 
 	namespace FormatFMI_EUCL_CH {
+	
+		auto Reader_impl::readEdge(EdgeID edge_id) -> edge_type
+		{
+			return text_readEdge<edge_type>(is, edge_id);
+		}
+
 		void Writer_impl::writeEdge(edge_type const& out, EdgeID)
 		{
 			text_writeEdge<edge_type>(os, out);

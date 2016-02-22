@@ -25,7 +25,8 @@ namespace md {
 	NodeT text_readNode(std::istream& is, NodeID node_id = c::NO_NID);
 	template<> OSMNode text_readNode<OSMNode>(std::istream& is, NodeID node_id);
 	template<> GeoNode text_readNode<GeoNode>(std::istream& is, NodeID node_id);
-
+	template<> CHNode<OSMNode> text_readNode<CHNode<OSMNode>>(std::istream& is, NodeID node_id);
+	
 	template<typename EdgeT>
 	void text_writeEdge(std::ostream& os, EdgeT const& edge);
 	template<> void text_writeEdge<OSMEdge>(std::ostream& os, OSMEdge const& edge);
@@ -40,7 +41,9 @@ namespace md {
 	template<> EuclOSMEdge text_readEdge<EuclOSMEdge>(std::istream& is, EdgeID edge_id);
 	template<> OSMDistEdge text_readEdge<OSMDistEdge>(std::istream& is, EdgeID edge_id);
 	template<> Edge text_readEdge<Edge>(std::istream& is, EdgeID edge_id);
-
+	template<> CHEdge<OSMEdge> text_readEdge< CHEdge<OSMEdge> >(std::istream& is, EdgeID edge_id);
+	template<> CHEdge<EuclOSMEdge> text_readEdge<CHEdge<EuclOSMEdge> >(std::istream& is, EdgeID edge_id);
+	
 	namespace FormatSTD
 	{
 		typedef OSMNode node_type;
@@ -154,6 +157,14 @@ namespace md {
 		typedef CHNode<OSMNode> node_type;
 		typedef CHEdge<OSMEdge> edge_type;
 
+		struct Reader_impl : FormatFMI::Reader_impl
+		{
+			Reader_impl(std::istream& is) : FormatFMI::Reader_impl(is) { }
+			node_type readNode(NodeID node_id);
+			edge_type readEdge(EdgeID edge_id);
+		};
+		typedef SimpleReader<Reader_impl> Reader;
+
 		struct Writer_impl : public FormatSTD::Writer_impl
 		{
 		public:
@@ -169,6 +180,12 @@ namespace md {
 	{
 		typedef CHNode<OSMNode> node_type;
 		typedef CHEdge<EuclOSMEdge> edge_type;
+		
+		struct Reader_impl : FormatFMI_CH::Reader_impl
+		{
+			edge_type readEdge(EdgeID edge_id);
+		};
+		typedef SimpleReader<Reader_impl> Reader;
 
 		struct Writer_impl : public FormatFMI_CH::Writer_impl
 		{
