@@ -183,6 +183,7 @@ namespace md {
 		
 		struct Reader_impl : FormatFMI_CH::Reader_impl
 		{
+			Reader_impl(std::istream& is) : FormatFMI_CH::Reader_impl(is) {}
 			edge_type readEdge(EdgeID edge_id);
 		};
 		typedef SimpleReader<Reader_impl> Reader;
@@ -236,9 +237,9 @@ namespace md {
 		case FileFormat::FMI_EUCL:
 			return FormatFMI_EUCL::Reader::readGraph<Node, Edge>(filename);
 		case FileFormat::FMI_CH:
-			break;
+			return FormatFMI_CH::Reader::readGraph<Node, Edge>(filename);
 		case FileFormat::FMI_EUCL_CH:
-			break;
+			return FormatFMI_EUCL_CH::Reader::readGraph<Node, Edge>(filename);
 		case FileFormat::STEFAN_CH:
 			break;
 		}
