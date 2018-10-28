@@ -596,7 +596,7 @@ auto CHConstructor<NodeT, EdgeT>::getShortcutsOfContracting(std::vector<NodeID> 
 	for (uint i = 0; i < size; i++) {
 		uint node(nodes[i]);
 
-		auto td(thread_data[omp_get_thread_num()]);
+		auto& td(thread_data[omp_get_thread_num()]);
 		shortcuts[i] = _contract(node, td);
 	}
 
