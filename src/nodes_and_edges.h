@@ -18,8 +18,17 @@ namespace unit_tests
 	void testNodesAndEdges();
 }
 
-typedef uint NodeID;
-typedef uint EdgeID;
+#ifdef NODE_ID_64
+typedef uint64_t NodeID;
+#else
+typedef uint32_t NodeID;
+#endif
+
+#ifdef EDGE_ID_64
+typedef uint64_t EdgeID;
+#else
+typedef uint32_t EdgeID;
+#endif
 namespace c
 {
 	uint const NO_NID(std::numeric_limits<NodeID>::max());

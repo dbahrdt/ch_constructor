@@ -44,6 +44,17 @@ if(NOT VERBOSE)
 	add_definitions(-DNVERBOSE)
 endif()
 
+option(NODE_ID_64 "Store NodeId as 64 bit unsigned integer" OFF)
+option(EDGE_ID_64 "Store EdgeId as 64 bit unsigned interger" OFF)
+
+if (NODE_ID_64)
+	add_definitions(-DNODE_ID_64)
+endif()
+
+if (EDGE_ID_64)
+	add_definitions(-DEDGE_ID_64)
+endif()
+
 # compile shared sources only once, and reuse object files in both,
 # as they are compiled with the same options anyway
 add_library(common OBJECT
