@@ -24,7 +24,10 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	set(EXTRA_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -pedantic" CACHE STRING "Extra flags used by the compiler during all build types.")
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		set(EXTRA_CXX_CLANG_FLAGS "-Wshorten-64-to-32")
+	endif()
+	set(EXTRA_CXX_FLAGS "-Wall -Wextra -Wno-unused-parameter -pedantic ${EXTRA_CXX_CLANG_FLAGS}" CACHE STRING "Extra flags used by the compiler during all build types.")
 	set(EXTRA_EXE_LINKER_FLAGS "-Wl,--as-needed" CACHE STRING "Extra flags used by the linker.")
 	set(EXTRA_EXE_LINKER_FLAGS_RELEASE "-flto" CACHE STRING "Extra flags used by the linker for the Release build type.")
 	set(EXTRA_EXE_LINKER_FLAGS_RELWITHDEBINFO "-flto" CACHE STRING "Extra flags used by the linker for the RelWithDebInfo build type.")
@@ -42,6 +45,11 @@ option(VERBOSE "Verbose logging" OFF)
 
 if(NOT VERBOSE)
 	add_definitions(-DNVERBOSE)
+endif()
+
+option(LARGE_GRAPH "Large graphs with more than 2**32 nodes/edges" OFF)
+if(LARGE_GRAPH)
+	add_definitions(-DLARGE_GRAPH)
 endif()
 
 # compile shared sources only once, and reuse object files in both,

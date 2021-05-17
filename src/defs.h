@@ -31,5 +31,9 @@
 
 namespace chc
 {
-	typedef unsigned int uint;
+#ifdef LARGE_GRAPH
+	typedef uint64_t uint;
+#else
+	typedef uint32_t uint;
+#endif
 }

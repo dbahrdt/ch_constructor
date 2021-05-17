@@ -28,7 +28,7 @@ void printHelp()
 struct BuildAndStoreCHGraph {
 	FileFormat outformat;
 	std::string outfile;
-	uint nr_of_threads;
+	chc::uint nr_of_threads;
 	TrackTime tt;
 
 	PrioritizerType prioritizer_type;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 	FileFormat informat(FileFormat::FMI_DIST);
 	std::string outfile("ch_out.graph");
 	FileFormat outformat(FileFormat::FMI_CH);
-	uint nr_of_threads(1);
+	chc::uint nr_of_threads(1);
 	PrioritizerType prioritizer_type(PrioritizerType::NONE);
 
 	/*
